@@ -12,8 +12,11 @@ const routes = [
     // Tambahkan ke array `routes`
     { path: '/login', name: 'Login', component: Login },
     { path: '/register', name: 'Register', component: Register },
-    { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true }
+    { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true },
+   
 ]
+
+
 
 const router = createRouter({
     history: createWebHistory(),
