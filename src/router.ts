@@ -11,7 +11,8 @@ const routes = [
     { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true },
     // Tambahkan ke array `routes`
     { path: '/login', name: 'Login', component: Login },
-    { path: '/register', name: 'Register', component: Register},
+    { path: '/register', name: 'Register', component: Register },
+    { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true }
 ]
 
 const router = createRouter({

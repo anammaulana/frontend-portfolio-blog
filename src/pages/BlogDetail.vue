@@ -1,26 +1,65 @@
 <template>
-    <div class="p-6">
-        <h1 class="text-3xl font-bold mb-4">{{ post.title }}</h1>
-        <p class="mb-2 text-gray-600">Ditulis oleh {{ post.author }}</p>
-        <div class="text-gray-800 leading-relaxed">{{ post.content }}</div>
+    <div class="max-w-4xl mx-auto p-6">
+        <div v-if="loading">Loading...</div>
+
+        <div v-else-if="post">
+            <img :src="post.coverImage" class="w-full h-64 object-cover rounded mb-6" alt="cover image" />
+            <h1 class="text-3xl font-bold mb-2">{{ post.title }}</h1>
+            <p class="text-gray-600 mb-4">
+                Ditulis oleh <strong>{{ post.author.name }}</strong> • {{ formatDate(post.createdAt) }}
+            </p>
+            <div class="prose max-w-none" v-html="post.content"></div>
+        </div>
+
+        <p v-else class="text-gray-500">Postingan tidak ditemukan.</p>
     </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import api from '../services/api'
+
+interface BlogPost {
+    id: number
+    title: string
+    content: string
+    coverImage: string
+    createdAt: string
+    author: {
+        id: number
+        name: string
+        email: string
+    }
+}
 
 const route = useRoute()
-const post = ref({ title: '', author: '', content: '' })
+const post = ref<BlogPost | null>(null)
+const loading = ref(true)
 
-// Simulasi fetch data
-const allPosts = [
-    { id: 1, title: 'Belajar Quarkus untuk Pemula', author: 'Anam', content: 'Quarkus adalah framework Java yang sangat cepat...' },
-    { id: 2, title: 'Integrasi Vue dengan Laravel Sanctum', author: 'Anam', content: 'Laravel Sanctum adalah solusi otentikasi ringan...' },
-    { id: 3, title: 'Tips Deploy Laravel di VPS', author: 'Anam', content: 'Untuk deploy Laravel ke VPS, kamu bisa mulai dengan...' },
-]
+function formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    })
+}
 
-const found = allPosts.find(p => p.id == route.params.id)
-if (found) post.value = found
+onMounted(async () => {
+    try {
+        const id = route.params.id
+        const res = await api.get(`/blogs/${id}`)
+        post.value = res.data.data
+    } catch (err) {
+        console.error('Gagal memuat detail blog:', err)
+    } finally {
+        loading.value = false
+    }
+})
 </script>
-  
+
+<style scoped>
+.prose {
+    white-space: pre-line;
+}
+</style>
